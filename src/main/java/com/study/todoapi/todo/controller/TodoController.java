@@ -1,5 +1,6 @@
 package com.study.todoapi.todo.controller;
 
+import com.study.todoapi.todo.dto.request.TodoCheckRequestDTO;
 import com.study.todoapi.todo.dto.request.TodoCreateRequestDTO;
 import com.study.todoapi.todo.dto.response.TodoDetailResponseDTO;
 import com.study.todoapi.todo.dto.response.TodoListResponseDTO;
@@ -12,7 +13,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 @RestController
 @Slf4j
@@ -54,6 +58,51 @@ public class TodoController {
         TodoListResponseDTO retrieve = todoService.retrieve();
 
         return ResponseEntity.ok().body(retrieve);
+    }
+
+    // 할 일 삭제 요청
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTodo(@PathVariable String id) {
+
+        log.info("/api/todos/{} DELETE !!", id);
+
+        if (id == null || id.trim().equals("")) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(TodoListResponseDTO
+                            .builder()
+                            .error("ID는 공백일 수 없습니다!!")
+                            .build());
+        }
+
+        try {
+            TodoListResponseDTO dtoList = todoService.delete(id);
+            return ResponseEntity.ok().body(dtoList);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .internalServerError()
+                    .body(TodoListResponseDTO.builder().error(e.getMessage()).build());
+        }
+
+    }
+
+    // 할 일 완료 체크처리 요청
+    @RequestMapping(method = {PUT, PATCH})
+    public ResponseEntity<?> updateTodo(
+            @RequestBody TodoCheckRequestDTO dto
+            , HttpServletRequest request
+    ) {
+
+        log.info("/api/todos {}", request.getMethod());
+        log.debug("dto: {}", dto);
+
+        try {
+            TodoListResponseDTO dtoList = todoService.check(dto);
+            return ResponseEntity.ok().body(dtoList);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(TodoListResponseDTO.builder().error(e.getMessage()).build());
+        }
     }
 
 }

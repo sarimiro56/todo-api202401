@@ -1,5 +1,6 @@
 package com.study.todoapi.todo.service;
 
+import com.study.todoapi.todo.dto.request.TodoCheckRequestDTO;
 import com.study.todoapi.todo.dto.request.TodoCreateRequestDTO;
 import com.study.todoapi.todo.dto.response.TodoDetailResponseDTO;
 import com.study.todoapi.todo.dto.response.TodoListResponseDTO;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,6 +45,32 @@ public class TodoService {
         return TodoListResponseDTO.builder()
                 .todos(dtoList)
                 .build();
+    }
+
+    // 할 일 삭제
+    public TodoListResponseDTO delete(String id) {
+
+        try {
+            todoRepository.deleteById(id);
+        } catch (Exception e) {
+            log.error("id가 존재하지 않아 삭제에 실패했습니다. - ID: {}, error: {}",
+                    id, e.getMessage());
+            throw new RuntimeException("삭제에 실패했습니다!!");
+        }
+        return retrieve();
+    }
+
+    // 할 일 체크 처리
+    public TodoListResponseDTO check(TodoCheckRequestDTO dto) {
+
+        Optional<Todo> target = todoRepository.findById(dto.getId());
+
+        target.ifPresent(todo -> {
+            todo.setDone(dto.isDone());
+            todoRepository.save(todo);
+        });
+
+        return retrieve();
     }
 
 }
