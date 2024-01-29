@@ -74,6 +74,7 @@ public class TokenProvider {
                 .compact();
     }
 
+
     /**
      * 클라이언트가 전송한 토큰을 디코딩하여 토큰의 위조여부를 확인
      * 토큰을 json으로 파싱해서 클레임(토큰정보)를 리턴
@@ -93,11 +94,13 @@ public class TokenProvider {
 
         log.info("claims: {}", claims);
 
-        return TokenUserInfo.builder()
+        TokenUserInfo build = TokenUserInfo.builder()
                 .userId(claims.getSubject())
                 .email(claims.get("email", String.class))
                 .role(Role.valueOf(claims.get("role", String.class)))
                 .build();
+        log.info("token user: {}", build);
+        return build;
     }
 
 
