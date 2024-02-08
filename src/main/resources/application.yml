@@ -34,3 +34,11 @@ jwt:
 
 upload:
   path: C:\spring-prj\upload
+
+# s3 setting
+aws:
+  credentials:
+    accessKey: AKIA6ODU6TV6URJ6PJS2
+    secretKey: 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
+  region: ap-northeast-2
+  bucketName: spring-todo-api-file-bucket5806
